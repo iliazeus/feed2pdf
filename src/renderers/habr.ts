@@ -6,22 +6,24 @@ export async function render(options: RenderOptions): Promise<void> {
 
   const page = await browser.newPage();
   try {
-    await page.goto(String(articleUrl));
+    await page.setJavaScriptEnabled(false);
+
+    await page.goto(String(articleUrl), { waitUntil: "networkidle0" });
 
     const title = await page.$eval("meta[property='og:title']", (el) => el.content);
     const pubDate = new Date(await page.$eval("time", (el) => el.dateTime));
 
     const articlePdf = await renderPage(page, {
       pageOptions,
-      css: ARTICLE_CSS,
+      css: CSS,
     });
 
-    const commentsUrl = new URL("comments", articleUrl);
-    await page.goto(String(commentsUrl));
+    const commentsUrl = new URL("comments", page.url());
+    await page.goto(String(commentsUrl), { waitUntil: "networkidle0" });
 
     const commentsPdf = await renderPage(page, {
       pageOptions,
-      css: COMMENTS_CSS,
+      css: CSS,
     });
 
     await pdftk
@@ -41,7 +43,6 @@ async function renderPage(
   }
 ): Promise<Buffer> {
   await page.addStyleTag({ content: options.css });
-
   await page.$$eval("details", (els) => els.forEach((el) => (el.open = true)));
 
   return await page.pdf({
@@ -51,37 +52,13 @@ async function renderPage(
   });
 }
 
-const ARTICLE_CSS = String.raw`
+const CSS = String.raw`
+  .tm-header, .tm-page__header,
+  .tm-footer, .tm-footer-menu,
   .tm-feature, .tm-project-block,
-  .tm-header, .tm-footer,
-  section,
-  .tm-user-info__userpic,
-  button
-  {
-    display: none !important;
-  }
-
-  body
-  {
-    background: white !important;
-    color: black !important;
-    font-family: Noto Serif !important;
-  }
-
-  pre, pre code
-  {
-    white-space: pre-wrap !important;
-    word-break: break-all !important;
-  }
-`;
-
-const COMMENTS_CSS = String.raw`
-.tm-feature, .tm-project-block,
-  .tm-header, .tm-footer,
+  .tm-placeholder-courses, .tm-placeholder-promo,
   section:not(.tm-comment-thread),
-  .tm-user-info__userpic,
-  .tm-comment-thread__circle,
-  button
+  .tm-user-info__userpic, .tm-comment-thread__circle, button
   {
     display: none !important;
   }
