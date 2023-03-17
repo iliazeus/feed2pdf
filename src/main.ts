@@ -64,36 +64,35 @@ export async function main(options: Options): Promise<void> {
 
   for (const item of feed.rss.channel.item) {
     queue.push(async () => {
-      const articleUrl = new URL(item.link._text);
+      try {
+        const articleUrl = new URL(item.link._text);
 
-      const renderer = await getRenderer(articleUrl, item, feed);
-      if (!renderer) return;
+        const renderer = await getRenderer(articleUrl, item, feed);
+        if (!renderer) return;
 
-      await fs.mkdir(path.join(outDir, articleUrl.hostname), { recursive: true });
+        const hostnameDir = path.join(outDir, articleUrl.hostname);
+        await fs.mkdir(hostnameDir, { recursive: true });
 
-      const outPath = (a: { pubDate: Date; title: string }) => {
-        const pubDate = a.pubDate.toISOString().split("T")[0];
-        const title = slugify(a.title, { lower: true });
-        return path.join(outDir, articleUrl.hostname, `${pubDate}-${title}.pdf`);
-      };
+        const outPath = (a: { pubDate: Date; title: string }) => {
+          const pubDate = a.pubDate.toISOString().split("T")[0];
+          const title = slugify(a.title, { lower: true });
+          return path.join(hostnameDir, `${pubDate}-${title}.pdf`);
+        };
 
-      await renderer({
-        browser,
-        pdftk,
-        articleUrl,
-        outPath,
-        page: pageOptions,
-      });
+        await renderer({
+          browser,
+          pdftk,
+          articleUrl,
+          outPath,
+          page: pageOptions,
+        });
+      } catch (error) {
+        errors.push(error);
+      }
     });
   }
 
-  while (queue.length > 0) {
-    try {
-      await new Promise<void>((rs, rj) => queue.start((err) => (err ? rj(err) : rs())));
-    } catch (error) {
-      errors.push(error);
-    }
-  }
+  await new Promise<void>((rs, rj) => queue.start((err) => (err ? rj(err) : rs())));
 
   await browser.close();
 
