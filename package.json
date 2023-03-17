@@ -1,0 +1,36 @@
+{
+  "name": "feed2pdf",
+  "private": true,
+  "version": "0.1.0",
+  "description": "a tool that collects links to web pages from an RSS feed, then renders them to PDF files with Puppeteer",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "start": "node ./dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iliazeus/feed2pdf.git"
+  },
+  "author": "Ilia Pozdnyakov <ilia.pozdnyakov@ya.ru>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iliazeus/feed2pdf/issues"
+  },
+  "homepage": "https://github.com/iliazeus/feed2pdf#readme",
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "@types/node-pdftk": "^2.1.6",
+    "esbuild": "^0.17.12",
+    "prettier": "^2.8.4",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "commander": "^10.0.0",
+    "got": "^12.6.0",
+    "node-pdftk": "^2.1.3",
+    "puppeteer-core": "^19.7.5",
+    "slugify": "^1.6.5",
+    "xml-js": "^1.6.11"
+  }
+}
