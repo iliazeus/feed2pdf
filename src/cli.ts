@@ -14,15 +14,22 @@ program
   .option("--browser <executable-path>", "path to browser executable to use", "/usr/bin/chromium")
   .option("-w --page-width <width>", "page width", "758px")
   .option("-h --page-height <height>", "page height", "1024px")
+  .option("-j --concurrency <number>", "maximum concurrency", "3")
   .action(
     async (
       feedUrl: string,
       outDir: string,
-      options: { browser: string; pageWidth: string; pageHeight: string }
+      options: {
+        browser: string;
+        pageWidth: string;
+        pageHeight: string;
+        concurrency: string;
+      }
     ) => {
       await main({
         feedUrl: new URL(feedUrl),
         outDir,
+        concurrency: Number(options.concurrency),
         browser: {
           executablePath: options.browser,
         },
