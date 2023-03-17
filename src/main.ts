@@ -60,6 +60,7 @@ export async function main(options: Options): Promise<void> {
   const browser = await puppeteer.launch(browserOptions);
 
   const queue = makeQueue({ concurrency });
+  const errors: unknown[] = [];
 
   for (const item of feed.rss.channel.item) {
     queue.push(async () => {
@@ -90,9 +91,13 @@ export async function main(options: Options): Promise<void> {
     try {
       await new Promise<void>((rs, rj) => queue.start((err) => (err ? rj(err) : rs())));
     } catch (error) {
-      console.warn(error);
+      errors.push(error);
     }
   }
 
   await browser.close();
+
+  if (errors.length > 0) {
+    throw new AggregateError(errors, "errors were encountered while processing");
+  }
 }
