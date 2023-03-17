@@ -27,10 +27,18 @@ export async function render(options: RenderOptions): Promise<void> {
       els.forEach((el) => el.previousSibling?.remove());
     });
 
+    await page.$$eval("div.comment", (els) => {
+      els.forEach((el) => el.style.cssText = "border: 0 !important");
+    });
+
+    await page.$$eval("span.md-spoiler-text", (els) => {
+      els.forEach((el) => el.classList.add("revealed"));
+    });
+
     await page.pdf({
       width: pageOptions.width,
       height: pageOptions.height,
-      scale: 1.35,
+      scale: 1.5,
       path: outPath({ title, pubDate }),
     });
   } finally {
@@ -39,9 +47,27 @@ export async function render(options: RenderOptions): Promise<void> {
 }
 
 const CSS = String.raw`
-  .side, .buttons
+  #header, section.infobar,
+  .side, .buttons, .arrow
   {
     display: none !important;
+  }
+
+  .content, .commentarea
+  {
+    margin: 0 !important;
+  }
+
+  .comment
+  {
+    padding-right: 0 !important;
+  }
+
+  .child
+  {
+    padding-top: 5px !important;
+    margin-left: 5px !important;
+    border-left: solid 2px gray !important;
   }
 
   body, .comment

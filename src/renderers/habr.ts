@@ -63,6 +63,11 @@ const CSS = String.raw`
     display: none !important;
   }
 
+  .tm-comment-thread__children
+  {
+    padding-top: 0 !important;
+  }
+
   body
   {
     background: white !important;
