@@ -3,6 +3,7 @@ import pkg from "../package.json";
 
 import { main } from "./main";
 import { render as habrRenderer } from "./renderers/habr";
+import { render as askredditRenderer } from "./renderers/askreddit";
 
 program.showHelpAfterError();
 
@@ -39,6 +40,11 @@ program
         },
         renderer: (url) => {
           if (url.hostname === "habr.com") return habrRenderer;
+
+          if (url.href.toLowerCase().includes("reddit.com/r/askreddit/comments")) {
+            return askredditRenderer;
+          }
+
           return null;
         },
       });
