@@ -6,7 +6,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "./scripts/build.sh",
-    "start": "node ./dist/cli.js"
+    "start": "node ./dist/feed2pdf.js"
   },
   "repository": {
     "type": "git",
