@@ -2,8 +2,7 @@ import { program } from "commander";
 import pkg from "../package.json";
 
 import { main } from "./main";
-import { render as habrRenderer } from "./renderers/habr";
-import { render as askredditRenderer } from "./renderers/askreddit";
+import * as renderers from "./renderers";
 
 program.showHelpAfterError();
 
@@ -39,13 +38,13 @@ program
           height: options.pageHeight,
         },
         renderer: (url) => {
-          if (url.hostname === "habr.com") return habrRenderer;
+          if (url.hostname === "habr.com") return renderers.habr;
 
           if (url.href.toLowerCase().includes("reddit.com/r/askreddit/comments")) {
-            return askredditRenderer;
+            return renderers.askreddit;
           }
 
-          return null;
+          return renderers.generic;
         },
       });
     }
