@@ -75,7 +75,8 @@ export async function main(options: Options): Promise<void> {
 
         const outPath = (a: { pubDate: Date; title: string }) => {
           const pubDate = a.pubDate.toISOString().split("T")[0];
-          const title = slugify(a.title, { lower: true });
+          const exfatForbiddenChars = /["*\/:<>?\\|]/g;
+          const title = slugify(a.title, { lower: true, remove: exfatForbiddenChars });
           return path.join(hostnameDir, `${pubDate}-${title}.pdf`);
         };
 
