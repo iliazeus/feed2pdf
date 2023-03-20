@@ -1,3 +1,3 @@
-export { render as generic } from "./generic";
-export { render as habr } from "./habr";
-export { render as askreddit } from "./askreddit";
+export { getRenderer as generic } from "./generic";
+export { getRenderer as habr } from "./habr";
+export { getRenderer as reddit } from "./reddit";

@@ -38,13 +38,20 @@ program
           height: options.pageHeight,
         },
         renderer: (url) => {
-          if (url.hostname === "habr.com") return renderers.habr;
+          const hostname = url.hostname;
+          const href = url.href.toLowerCase();
 
-          if (url.href.toLowerCase().includes("reddit.com/r/askreddit/comments")) {
-            return renderers.askreddit;
+          if (hostname === "habr.com") return renderers.habr();
+          if (href.includes("reddit.com/r/askreddit/comments")) return renderers.reddit();
+
+          if (href.includes("reddit.com/r/askhistorians/comments")) {
+            return renderers.reddit({
+              hideDeletedComments: true,
+              hideCommentsFrom: ["AutoModerator"],
+            });
           }
 
-          return renderers.generic;
+          return renderers.generic();
         },
       });
     }

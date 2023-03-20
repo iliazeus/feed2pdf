@@ -1,38 +1,40 @@
 import type { Page } from "puppeteer-core";
-import type { PageOptions, RenderOptions } from "../main";
+import type { PageOptions, RenderOptions, Renderer } from "../main";
 
-export async function render(options: RenderOptions): Promise<void> {
-  const { browser, pdftk, articleUrl, outPath, page: pageOptions } = options;
+export function getRenderer(): Renderer {
+  return async (options) => {
+    const { browser, pdftk, articleUrl, outPath, page: pageOptions } = options;
 
-  const page = await browser.newPage();
-  try {
-    await page.setJavaScriptEnabled(false);
+    const page = await browser.newPage();
+    try {
+      await page.setJavaScriptEnabled(false);
 
-    await page.goto(String(articleUrl), { waitUntil: "networkidle0" });
+      await page.goto(String(articleUrl), { waitUntil: "networkidle0" });
 
-    const title = await page.$eval("meta[property='og:title']", (el) => el.content);
-    const pubDate = new Date(await page.$eval("time", (el) => el.dateTime));
+      const title = await page.$eval("meta[property='og:title']", (el) => el.content);
+      const pubDate = new Date(await page.$eval("time", (el) => el.dateTime));
 
-    const articlePdf = await renderPage(page, {
-      pageOptions,
-      css: CSS,
-    });
+      const articlePdf = await renderPage(page, {
+        pageOptions,
+        css: CSS,
+      });
 
-    const commentsUrl = new URL("comments", page.url());
-    await page.goto(String(commentsUrl), { waitUntil: "networkidle0" });
+      const commentsUrl = new URL("comments", page.url());
+      await page.goto(String(commentsUrl), { waitUntil: "networkidle0" });
 
-    const commentsPdf = await renderPage(page, {
-      pageOptions,
-      css: CSS,
-    });
+      const commentsPdf = await renderPage(page, {
+        pageOptions,
+        css: CSS,
+      });
 
-    await pdftk
-      .input({ A: articlePdf, B: commentsPdf })
-      .cat("A B")
-      .output(outPath({ pubDate, title }));
-  } finally {
-    await page.close();
-  }
+      await pdftk
+        .input({ A: articlePdf, B: commentsPdf })
+        .cat("A B")
+        .output(outPath({ pubDate, title }));
+    } finally {
+      await page.close();
+    }
+  };
 }
 
 async function renderPage(
