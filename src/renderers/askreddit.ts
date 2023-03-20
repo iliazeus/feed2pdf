@@ -77,6 +77,17 @@ const CSS = String.raw`
     font-family: Noto Serif !important;
   }
 
+  .title
+  {
+    color: black !important;
+  }
+
+  p a:not(.title):not(.author)
+  {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+
   pre, pre code
   {
     white-space: pre-wrap !important;

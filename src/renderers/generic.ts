@@ -32,4 +32,10 @@ const CSS = String.raw`
     color: black !important;
     font-family: Noto Serif !important;
   }
+
+  p a
+  {
+    color: black !important;
+    text-decoration: underline !important;
+  }
 `;

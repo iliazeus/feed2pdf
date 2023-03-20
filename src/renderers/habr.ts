@@ -75,6 +75,12 @@ const CSS = String.raw`
     font-family: Noto Serif !important;
   }
 
+  p a
+  {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+
   pre, pre code
   {
     white-space: pre-wrap !important;
