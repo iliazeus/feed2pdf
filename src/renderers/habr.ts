@@ -45,6 +45,8 @@ async function renderPage(
   await page.addStyleTag({ content: options.css });
   await page.$$eval("details", (els) => els.forEach((el) => (el.open = true)));
 
+  await page.waitForTimeout(1000);
+
   return await page.pdf({
     width: options.pageOptions.width,
     height: options.pageOptions.height,
