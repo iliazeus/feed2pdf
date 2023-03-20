@@ -57,6 +57,7 @@ export async function main(options: Options): Promise<void> {
   } = options;
 
   await fs.mkdir(rootDir, { recursive: true });
+  await mergeInto(rootDir, path.join(rootDir, "old"));
 
   const feed = await fetchRss(feedUrl);
 
@@ -109,4 +110,19 @@ export async function main(options: Options): Promise<void> {
   if (errors.length > 0) {
     throw new AggregateError(errors, "errors were encountered while processing");
   }
+}
+
+async function mergeInto(sourceDir: string, targetDir: string): Promise<void> {
+  await fs.mkdir(targetDir, { recursive: true });
+
+  for (const entry of await fs.readdir(sourceDir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (path.resolve(sourceDir, entry.name) === path.resolve(targetDir)) continue;
+      await mergeInto(path.join(sourceDir, entry.name), path.join(targetDir, entry.name));
+    } else if (entry.isFile()) {
+      await fs.rename(path.join(sourceDir, entry.name), path.join(targetDir, entry.name));
+    }
+  }
+
+  await fs.rmdir(sourceDir).catch((err) => (err.code === "ENOTEMPTY" ? null : Promise.reject(err)));
 }
