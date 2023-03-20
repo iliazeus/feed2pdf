@@ -29,7 +29,7 @@ program
       await main({
         log: console.log,
         feedUrl: new URL(feedUrl),
-        outDir,
+        rootDir: outDir,
         concurrency: Number(options.concurrency),
         browser: {
           executablePath: options.browser,
@@ -42,22 +42,27 @@ program
           const hostname = url.hostname;
           const href = url.href.toLowerCase();
 
-          if (hostname === "habr.com") return renderers.habr();
+          if (hostname === "habr.com") return { name: "habr", render: renderers.habr() };
 
-          if (href.includes("reddit.com/r/askreddit/comments")) return renderers.reddit();
+          if (href.includes("reddit.com/r/askreddit/comments")) {
+            return { name: "askreddit", render: renderers.reddit() };
+          }
 
           if (href.includes("reddit.com/r/askhistorians/comments")) {
-            return renderers.reddit({
-              hideDeletedComments: true,
-              hideCommentsFrom: ["AutoModerator"],
-            });
+            return {
+              name: "askhistorians",
+              render: renderers.reddit({
+                hideDeletedComments: true,
+                hideCommentsFrom: ["AutoModerator"],
+              }),
+            };
           }
 
           if (hostname === "reddit.com" || hostname === "old.reddit.com") {
-            return renderers.reddit();
+            return { name: "reddit", render: renderers.reddit() };
           }
 
-          return renderers.generic();
+          return { name: "other", render: renderers.generic() };
         },
       });
     }

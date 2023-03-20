@@ -33,11 +33,11 @@ export type RendererDispatcher = (
   articleUrl: URL,
   item: RssItem,
   feed: Rss
-) => DispatcherResult<Renderer>;
+) => DispatcherResult<{ name: string; render: Renderer }>;
 
 export interface Options {
   feedUrl: URL;
-  outDir: string;
+  rootDir: string;
   renderer: RendererDispatcher;
   page: PageOptions;
   browser: BrowserOptions;
@@ -48,7 +48,7 @@ export interface Options {
 export async function main(options: Options): Promise<void> {
   const {
     feedUrl,
-    outDir,
+    rootDir,
     renderer: getRenderer,
     page: pageOptions,
     browser: browserOptions,
@@ -56,7 +56,7 @@ export async function main(options: Options): Promise<void> {
     log,
   } = options;
 
-  await fs.mkdir(outDir, { recursive: true });
+  await fs.mkdir(rootDir, { recursive: true });
 
   const feed = await fetchRss(feedUrl);
 
@@ -78,17 +78,17 @@ export async function main(options: Options): Promise<void> {
 
         log(`fetching ${renderer.name} article ${articleUrl}`);
 
-        const hostnameDir = path.join(outDir, articleUrl.hostname);
-        await fs.mkdir(hostnameDir, { recursive: true });
+        const outDir = path.join(rootDir, renderer.name);
+        await fs.mkdir(outDir, { recursive: true });
 
         const outPath = (a: { pubDate: Date; title: string }) => {
           const pubDate = a.pubDate.toISOString().split("T")[0];
           const exfatForbiddenChars = /["*\/:<>?\\|]/g;
           const title = slugify(a.title, { lower: true, remove: exfatForbiddenChars });
-          return path.join(hostnameDir, `${pubDate}-${title}.pdf`);
+          return path.join(outDir, `${pubDate}-${title}.pdf`);
         };
 
-        await renderer({
+        await renderer.render({
           browser,
           pdftk,
           articleUrl,
