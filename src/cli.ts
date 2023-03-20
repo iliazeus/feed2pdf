@@ -53,6 +53,10 @@ program
             });
           }
 
+          if (hostname === "reddit.com" || hostname === "old.reddit.com") {
+            return renderers.reddit();
+          }
+
           return renderers.generic();
         },
       });
