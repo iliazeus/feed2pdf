@@ -27,6 +27,7 @@ program
       }
     ) => {
       await main({
+        log: console.log,
         feedUrl: new URL(feedUrl),
         outDir,
         concurrency: Number(options.concurrency),
@@ -42,6 +43,7 @@ program
           const href = url.href.toLowerCase();
 
           if (hostname === "habr.com") return renderers.habr();
+
           if (href.includes("reddit.com/r/askreddit/comments")) return renderers.reddit();
 
           if (href.includes("reddit.com/r/askhistorians/comments")) {

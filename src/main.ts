@@ -22,6 +22,7 @@ export interface RenderOptions {
   articleUrl: URL;
   outPath: (args: { pubDate: Date; title: string }) => string;
   page: PageOptions;
+  log: (...args: unknown[]) => void;
 }
 
 export type Renderer = (options: RenderOptions) => Promise<void>;
@@ -41,6 +42,7 @@ export interface Options {
   page: PageOptions;
   browser: BrowserOptions;
   concurrency: number;
+  log: (...args: unknown[]) => void;
 }
 
 export async function main(options: Options): Promise<void> {
@@ -51,6 +53,7 @@ export async function main(options: Options): Promise<void> {
     page: pageOptions,
     browser: browserOptions,
     concurrency,
+    log,
   } = options;
 
   await fs.mkdir(outDir, { recursive: true });
@@ -68,7 +71,12 @@ export async function main(options: Options): Promise<void> {
         const articleUrl = new URL(item.link._text);
 
         const renderer = await getRenderer(articleUrl, item, feed);
-        if (!renderer) return;
+        if (!renderer) {
+          log(`no renderers for ${articleUrl}`);
+          return;
+        }
+
+        log(`fetching ${renderer.name} article ${articleUrl}`);
 
         const hostnameDir = path.join(outDir, articleUrl.hostname);
         await fs.mkdir(hostnameDir, { recursive: true });
@@ -86,9 +94,10 @@ export async function main(options: Options): Promise<void> {
           articleUrl,
           outPath,
           page: pageOptions,
+          log: (...args) => log(`[${renderer.name}]`, ...args),
         });
       } catch (error) {
-        errors.push(error);
+        errors.push(new Error(`error rendering ${item.link._text}`, { cause: error }));
       }
     });
   }

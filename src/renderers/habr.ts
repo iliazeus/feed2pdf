@@ -2,7 +2,7 @@ import type { Page } from "puppeteer-core";
 import type { PageOptions, RenderOptions, Renderer } from "../main";
 
 export function getRenderer(): Renderer {
-  return async (options) => {
+  return async function habr(options) {
     const { browser, pdftk, articleUrl, outPath, page: pageOptions } = options;
 
     const page = await browser.newPage();

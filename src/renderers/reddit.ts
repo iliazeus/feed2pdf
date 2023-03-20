@@ -1,4 +1,4 @@
-import type { RenderOptions, Renderer } from "../main";
+import type { Renderer } from "../main";
 
 export interface Options {
   hideDeletedComments?: boolean;
@@ -8,8 +8,8 @@ export interface Options {
 export function getRenderer(options?: Options): Renderer {
   const { hideDeletedComments = false, hideCommentsFrom = [] } = options ?? {};
 
-  return async (args) => {
-    const { browser, articleUrl, outPath, page: pageOptions } = args;
+  return async function reddit(options) {
+    const { browser, articleUrl, outPath, page: pageOptions } = options;
 
     const page = await browser.newPage();
     try {

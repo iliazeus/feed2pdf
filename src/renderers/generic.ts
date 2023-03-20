@@ -1,7 +1,7 @@
-import type { RenderOptions, Renderer } from "../main";
+import type { Renderer } from "../main";
 
 export function getRenderer(): Renderer {
-  return async (options) => {
+  return async function generic(options) {
     const { browser, articleUrl, outPath, page: pageOptions } = options;
 
     const page = await browser.newPage();
