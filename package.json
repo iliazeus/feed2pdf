@@ -1,7 +1,7 @@
 {
   "name": "feed2pdf",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "a tool that collects links to web pages from an RSS feed, then renders them to PDF files with Puppeteer",
   "main": "dist/main.js",
   "scripts": {

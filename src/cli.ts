@@ -60,6 +60,8 @@ program
             };
           } else if (hostname === "reddit.com" || hostname === "old.reddit.com") {
             renderer = { name: "reddit", render: renderers.reddit() };
+          } else if (hostname === "accuweather.com") {
+            renderer = { name: "accuweather", render: renderers.accuweather() };
           } else {
             renderer = { name: "other", render: renderers.generic() };
           }
