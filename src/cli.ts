@@ -15,6 +15,7 @@ program
   .option("-w --page-width <width>", "page width", "758px")
   .option("-h --page-height <height>", "page height", "1024px")
   .option("-j --concurrency <number>", "maximum concurrency", "3")
+  .option("--only <name>", "only use renderer <name>")
   .action(
     async (
       feedUrl: string,
@@ -24,6 +25,7 @@ program
         pageWidth: string;
         pageHeight: string;
         concurrency: string;
+        only?: string;
       }
     ) => {
       await main({
@@ -39,30 +41,32 @@ program
           height: options.pageHeight,
         },
         renderer: (url) => {
+          let renderer = null;
+
           const hostname = url.hostname;
           const href = url.href.toLowerCase();
 
-          if (hostname === "habr.com") return { name: "habr", render: renderers.habr() };
-
-          if (href.includes("reddit.com/r/askreddit/comments")) {
-            return { name: "askreddit", render: renderers.reddit() };
-          }
-
-          if (href.includes("reddit.com/r/askhistorians/comments")) {
-            return {
+          if (hostname === "habr.com") {
+            renderer = { name: "habr", render: renderers.habr() };
+          } else if (href.includes("reddit.com/r/askreddit/comments")) {
+            renderer = { name: "askreddit", render: renderers.reddit() };
+          } else if (href.includes("reddit.com/r/askhistorians/comments")) {
+            renderer = {
               name: "askhistorians",
               render: renderers.reddit({
                 hideDeletedComments: true,
                 hideCommentsFrom: ["AutoModerator"],
               }),
             };
+          } else if (hostname === "reddit.com" || hostname === "old.reddit.com") {
+            renderer = { name: "reddit", render: renderers.reddit() };
+          } else {
+            renderer = { name: "other", render: renderers.generic() };
           }
 
-          if (hostname === "reddit.com" || hostname === "old.reddit.com") {
-            return { name: "reddit", render: renderers.reddit() };
-          }
+          if (options.only && renderer?.name !== options.only) renderer = null;
 
-          return { name: "other", render: renderers.generic() };
+          return renderer;
         },
       });
     }
