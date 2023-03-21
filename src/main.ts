@@ -7,7 +7,7 @@ import puppeteer from "puppeteer-core";
 import type { Browser, LaunchOptions as BrowserOptions } from "puppeteer-core";
 import { Rss, RssItem, fetchRss } from "./feed";
 import pdftk from "node-pdftk";
-import slugify from "slugify";
+import slugifyBase from "slugify";
 
 pdftk.configure({ tempDir: os.tmpdir() });
 
@@ -84,8 +84,7 @@ export async function main(options: Options): Promise<void> {
 
         const outPath = (a: { pubDate: Date; title: string }) => {
           const pubDate = a.pubDate.toISOString().split("T")[0];
-          const exfatForbiddenChars = /["*\/:<>?\\|]/g;
-          const title = slugify(a.title, { lower: true, remove: exfatForbiddenChars });
+          const title = slugify(a.title);
           return path.join(outDir, `${pubDate}-${title}.pdf`);
         };
 
@@ -125,4 +124,10 @@ async function mergeInto(sourceDir: string, targetDir: string): Promise<void> {
   }
 
   await fs.rmdir(sourceDir).catch((err) => (err.code === "ENOTEMPTY" ? null : Promise.reject(err)));
+}
+
+export function slugify(s: string): string {
+  return slugifyBase(s, { lower: true })
+    .replaceAll(/[*/:<>?\\|]/g, "")
+    .replaceAll(/[ьЬ]/g, "");
 }
