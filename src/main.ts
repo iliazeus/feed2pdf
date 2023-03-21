@@ -3,11 +3,18 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 
 import makeQueue from "queue";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer-extra";
+import PuppeteerAdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import type { Browser, LaunchOptions as BrowserOptions } from "puppeteer-core";
 import { Rss, RssItem, fetchRss } from "./feed";
 import pdftk from "node-pdftk";
 import slugifyBase from "slugify";
+
+puppeteer.use(
+  PuppeteerAdblockerPlugin({
+    blockTrackersAndAnnoyances: true,
+  })
+);
 
 pdftk.configure({ tempDir: os.tmpdir() });
 
@@ -61,7 +68,7 @@ export async function main(options: Options): Promise<void> {
 
   const feed = await fetchRss(feedUrl);
 
-  const browser = await puppeteer.launch(browserOptions);
+  const browser: Browser = (await puppeteer.launch(browserOptions)) as any;
 
   const queue = makeQueue({ concurrency });
   const errors: unknown[] = [];
@@ -89,7 +96,7 @@ export async function main(options: Options): Promise<void> {
         };
 
         await renderer.render({
-          browser,
+          browser: browser,
           pdftk,
           articleUrl,
           outPath,

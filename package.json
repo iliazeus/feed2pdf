@@ -30,8 +30,13 @@
     "got": "^12.6.0",
     "node-pdftk": "^2.1.3",
     "puppeteer-core": "^19.7.5",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
     "queue": "^6.0.2",
     "slugify": "^1.6.5",
     "xml-js": "^1.6.11"
+  },
+  "overrides": {
+    "clone-deep": "4.0.1"
   }
 }
