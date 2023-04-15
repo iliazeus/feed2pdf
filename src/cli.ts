@@ -58,9 +58,9 @@ program
                 hideCommentsFrom: ["AutoModerator"],
               }),
             };
-          } else if (hostname === "reddit.com" || hostname === "old.reddit.com") {
+          } else if (hostname.includes("reddit.com")) {
             renderer = { name: "reddit", render: renderers.reddit() };
-          } else if (hostname === "accuweather.com") {
+          } else if (hostname.includes("accuweather.com")) {
             renderer = { name: "accuweather", render: renderers.accuweather() };
           } else {
             renderer = { name: "other", render: renderers.generic() };
