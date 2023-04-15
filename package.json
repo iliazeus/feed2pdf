@@ -1,7 +1,7 @@
 {
   "name": "feed2pdf",
   "private": true,
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "a tool that collects links to web pages from an RSS feed, then renders them to PDF files with Puppeteer",
   "main": "dist/main.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
     "queue": "^6.0.2",
-    "slugify": "^1.6.5",
+    "slugify": "^1.6.6",
     "xml-js": "^1.6.11"
   },
   "overrides": {

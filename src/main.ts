@@ -7,7 +7,7 @@ import puppeteer from "puppeteer-extra";
 import PuppeteerAdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import type { Browser, LaunchOptions as BrowserOptions } from "puppeteer-core";
 import pdftk from "node-pdftk";
-import slugifyBase from "slugify";
+import slugify from "slugify";
 
 import { Feed, FeedEntry, fetchFeed } from "./feed";
 
@@ -96,7 +96,7 @@ export async function main(options: Options): Promise<void> {
 
         const outPath = (a: { pubDate: Date; title: string }) => {
           const pubDate = a.pubDate.toISOString().split("T")[0];
-          const title = slugify(a.title);
+          const title = slugify(a.title, { lower: true, remove: /[^\w\d-_]/g });
           const filename = `${pubDate}-${title}`.slice(0, 60) + ".pdf";
           return path.join(outDir, filename);
         };
@@ -137,10 +137,4 @@ async function mergeInto(sourceDir: string, targetDir: string): Promise<void> {
   }
 
   await fs.rmdir(sourceDir).catch((err) => (err.code === "ENOTEMPTY" ? null : Promise.reject(err)));
-}
-
-export function slugify(s: string): string {
-  return slugifyBase(s, { lower: true })
-    .replaceAll(/[*/:<>?\\|]/g, "")
-    .replaceAll(/[ьЬ]/g, "");
 }
