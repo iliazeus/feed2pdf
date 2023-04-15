@@ -1,21 +1,35 @@
 import got from "got";
 import { xml2js } from "xml-js";
 
-export interface Rss {
-  rss: {
-    channel: {
-      item: RssItem[];
-    };
-  };
+export type Feed = RssFeed | AtomFeed;
+export type FeedEntry = RssFeedEntry | AtomFeedEntry;
+
+export interface RssFeed {
+  rss: Array<{
+    channel: Array<{
+      item: Array<RssFeedEntry>;
+    }>;
+  }>;
 }
 
-export interface RssItem {
-  title: { _text: string };
-  link: { _text: string };
+export interface RssFeedEntry {
+  title: Array<{ _text: string }>;
+  link: Array<{ _text: string }>;
 }
 
-export async function fetchRss(url: URL): Promise<Rss> {
-  const rssText = await got(url).text();
-  const rssObject = xml2js(rssText, { compact: true, cdataKey: "_text" });
-  return rssObject as Rss;
+export interface AtomFeed {
+  feed: Array<{
+    entry: Array<AtomFeedEntry>;
+  }>;
+}
+
+export interface AtomFeedEntry {
+  title: Array<{ _text: string }>;
+  link: Array<{ _attributes: { href: string } }>;
+}
+
+export async function fetchFeed(url: URL): Promise<Feed> {
+  const feedText = await got(url).text();
+  const feedObject = xml2js(feedText, { compact: true, alwaysArray: true, cdataKey: "_text" });
+  return feedObject as Feed;
 }

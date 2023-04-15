@@ -6,9 +6,10 @@ import makeQueue from "queue";
 import puppeteer from "puppeteer-extra";
 import PuppeteerAdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import type { Browser, LaunchOptions as BrowserOptions } from "puppeteer-core";
-import { Rss, RssItem, fetchRss } from "./feed";
 import pdftk from "node-pdftk";
 import slugifyBase from "slugify";
+
+import { Feed, FeedEntry, fetchFeed } from "./feed";
 
 puppeteer.use(
   PuppeteerAdblockerPlugin({
@@ -38,8 +39,8 @@ export type DispatcherResult<T> = T | null | undefined | Promise<T | null | unde
 
 export type RendererDispatcher = (
   articleUrl: URL,
-  item: RssItem,
-  feed: Rss
+  item: FeedEntry,
+  feed: Feed
 ) => DispatcherResult<{ name: string; render: Renderer }>;
 
 export interface Options {
@@ -66,19 +67,23 @@ export async function main(options: Options): Promise<void> {
   await fs.mkdir(rootDir, { recursive: true });
   await mergeInto(rootDir, path.join(rootDir, "old"));
 
-  const feed = await fetchRss(feedUrl);
+  const feed = await fetchFeed(feedUrl);
+  const entries = "rss" in feed ? feed.rss[0].channel[0].item : feed.feed[0].entry;
 
   const browser: Browser = (await puppeteer.launch(browserOptions)) as any;
 
   const queue = makeQueue({ concurrency });
   const errors: unknown[] = [];
 
-  for (const item of feed.rss.channel.item) {
+  for (const entry of entries) {
     queue.push(async () => {
-      try {
-        const articleUrl = new URL(item.link._text);
+      const articleLink = entry.link[0];
+      const articleUrl = new URL(
+        "_text" in articleLink ? articleLink._text : articleLink._attributes.href
+      );
 
-        const renderer = await getRenderer(articleUrl, item, feed);
+      try {
+        const renderer = await getRenderer(articleUrl, entry, feed);
         if (!renderer) {
           log(`no renderers for ${articleUrl}`);
           return;
@@ -104,7 +109,7 @@ export async function main(options: Options): Promise<void> {
           log: (...args) => log(`[${renderer.name}]`, ...args),
         });
       } catch (error) {
-        errors.push(new Error(`error rendering ${item.link._text}`, { cause: error }));
+        errors.push(new Error(`error rendering ${articleUrl}`, { cause: error }));
       }
     });
   }
