@@ -75,6 +75,11 @@ program
   );
 
 program.parseAsync().catch((error) => {
-  console.error(error);
+  if (error instanceof AggregateError) {
+    console.error(error.message);
+    for (const subError of error.errors) console.error(subError);
+  } else {
+    console.error(error);
+  }
   process.exitCode = error.exitCode ?? 1;
 });
