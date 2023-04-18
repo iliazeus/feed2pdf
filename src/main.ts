@@ -96,8 +96,8 @@ export async function main(options: Options): Promise<void> {
 
         const outPath = (a: { pubDate: Date; title: string }) => {
           const pubDate = a.pubDate.toISOString().split("T")[0];
-          const title = slugify(a.title, { lower: true, remove: /[^\w\d-_]/g });
-          const filename = `${pubDate}-${title}`.slice(0, 60) + ".pdf";
+          const title = slugify(a.title, { lower: true, remove: /[^\w\d-_\s]/g });
+          const filename = `${pubDate}-${title}`.slice(0, 124) + ".pdf";
           return path.join(outDir, filename);
         };
 
